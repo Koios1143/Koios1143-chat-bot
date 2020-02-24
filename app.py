@@ -113,7 +113,7 @@ def handle_message(event):
         retext = name
     elif text[0:4] == 'mask':
         zipcode = int(text[4:])
-        retext = mask.get_masks(zipcode)
+        retext = get_masks(zipcode)
     else:
         retext = text + "てす"
     message = TextSendMessage(retext)
