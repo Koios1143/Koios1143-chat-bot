@@ -55,7 +55,7 @@ def get_masks(zipcode):
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
         logs_red('zipcode dosen\'t exist')
-        return 'ERROR'=
+        return 'ERROR'
     logs_yellow('=== processing ===')
 
     # download file
