@@ -76,6 +76,7 @@ def get_masks(zipcode):
             if(area == region):
                 print('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n')
                 output += ('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n')
+                line_bot_api.reply_message(event.reply_token, output)
     return output  
 
 app = Flask(__name__)
@@ -113,7 +114,7 @@ def handle_message(event):
         retext = name
     elif text[0:4] == 'mask':
         zipcode = int(text[4:])
-        retext = get_masks(zipcode)
+        get_masks(zipcode)
     else:
         retext = text + "てす"
     message = TextSendMessage(retext)
