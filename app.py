@@ -9,7 +9,7 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
-import get_masks as mask
+# import get_masks as mask
 
 app = Flask(__name__)
 
@@ -44,9 +44,9 @@ def handle_message(event):
         retext = "whoami\n\t tell you who am I\n"
     elif text == "whoami":
         retext = name
-    elif text[0:4] == 'mask':
-        zipcode = int(text[4:])
-        retext = mask.get_masks(zipcode)
+    # elif text[0:4] == 'mask':
+    #     zipcode = int(text[4:])
+    #     retext = mask.get_masks(zipcode)
     else:
         retext = text + "てす"
     message = TextSendMessage(retext)
