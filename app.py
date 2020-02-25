@@ -115,7 +115,7 @@ def handle_message(event):
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
         for i in ret:
-            line_bot_api.reply_message(event.reply_token, message)
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(i))
     else:
         retext = text + "てす"
     message = TextSendMessage(retext)
