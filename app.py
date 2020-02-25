@@ -106,7 +106,7 @@ name = "Koios1143"
 retext = []
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    nonlocal retext
+    #nonlocal retext
     text=event.message.text
     if text == "--help":
         retext = []
