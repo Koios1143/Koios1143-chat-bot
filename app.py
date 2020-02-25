@@ -74,8 +74,9 @@ def get_masks(zipcode):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
-                print('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n')
-                output.append(('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n'))
+                out = ('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n')
+                print(out)
+                output.append(out)
     return output  
 
 app = Flask(__name__)
@@ -114,6 +115,7 @@ def handle_message(event):
     elif text[0:4] == 'mask':
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
+        print('ret: ' + ret)
         for i in ret:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(i))
     else:
