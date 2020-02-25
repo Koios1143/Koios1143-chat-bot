@@ -51,7 +51,7 @@ def get_data(url):
 
 # find masks
 def get_masks(zipcode):
-    output = []
+    output = ''
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
         logs_red('zipcode dosen\'t exist')
