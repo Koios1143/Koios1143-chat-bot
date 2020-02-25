@@ -122,7 +122,7 @@ def handle_message(event):
         retext = ret
     else:
         retext = (text + "てす\n")
-    print('retext size: ' + len(retext))
+    print('retext size: ' + str(len(retext)))
     message = TextSendMessage(retext)
     line_bot_api.reply_message(event.reply_token, message)
 
