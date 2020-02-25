@@ -65,6 +65,7 @@ def get_masks(zipcode):
     logs_green('=== download completed ===')
 
     # load data
+    flag = 0
     data_name = 'maskdata.csv'
     with open(data_name, newline='') as csvfile:
         rows = csv.reader(csvfile)
@@ -74,6 +75,9 @@ def get_masks(zipcode):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
+                if(flag==5):
+                    break
+                flag+=1
                 output += str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n')
     print('res: ' + output)            
     return output  
