@@ -104,8 +104,10 @@ name = "Koios1143"
 
 # 處理訊息
 retext = []
+timer = 0
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    timer += 1
     #nonlocal retext
     text=event.message.text
     if text == "--help":
@@ -125,6 +127,8 @@ def handle_message(event):
     elif text == '+':
         if(len(retext)<=0):
             retext.append('沒有其他資料囉!\n')
+    elif text == 'test':
+        retext.append(str(timer))
     else:
         retext = []
         retext.append(str(text + "てす\n"))
