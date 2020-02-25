@@ -51,7 +51,7 @@ def get_data(url):
 
 # find masks
 def get_masks(zipcode):
-    output = ''
+    output = []
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
         logs_red('zipcode dosen\'t exist')
@@ -75,11 +75,7 @@ def get_masks(zipcode):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
-                if(flag==5):
-                    break
-                flag+=1
-                output += str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n')
-    print('res: ' + output)            
+                output.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))            
     return output  
 
 app = Flask(__name__)
@@ -107,21 +103,34 @@ def callback():
 name = "Koios1143"
 
 # 處理訊息
+retext = []
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     text=event.message.text
-    retext=""
     if text == "--help":
-        retext = "whoami\n\t tell you who am I\n"
+        retext = []
+        retext.append("whoami\n\t tell you who am I\n")
     elif text == "whoami":
-        retext = name
+        retext = []
+        retext.append(name)
     elif text[0:4] == 'mask':
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(ret))
+        retext.append(ret)
+    elif text == '+':
+        if(len(retext)<=0):
+            retext.append('沒有其他資料囉!\n')
     else:
-        retext = text + "てす"
-    message = TextSendMessage(retext)
+        retext = []
+        retext.append(str(text + "てす\n"))
+    final_message = ""
+    flag = 0
+    for i in retext:
+        if(flag == 5):
+            break
+        flag += 1
+        final_message += i
+    message = TextSendMessage(final_message)
     line_bot_api.reply_message(event.reply_token, message)
 
 import os
