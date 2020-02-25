@@ -115,6 +115,7 @@ def handle_message(event):
         retext = []
         retext.append(name)
     elif text[0:4] == 'mask':
+        retext = []
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
         for i in ret:
