@@ -118,6 +118,8 @@ def handle_message(event):
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
         for i in ret:
+            print('res: ' + i)
+        for i in ret:
             retext.append(i)
     elif text == '+':
         if(len(retext)<=0):
