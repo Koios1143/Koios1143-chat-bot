@@ -48,7 +48,9 @@ def get_data(url):
     r = requests.get(url)
     with open('./maskdata.csv','wb') as f:
         f.write(r.content)
-
+ch = {}
+ch['start'] = 0
+ch['zipcode'] = -1
 # find masks
 def get_masks(zipcode):
     output = ''
@@ -69,18 +71,22 @@ def get_masks(zipcode):
     data_name = 'maskdata.csv'
     with open(data_name, newline='') as csvfile:
         rows = csv.reader(csvfile)
+        flag = 0
+        target = ch['start']
         for row in rows:
+            flag += 1
+            if(flag < target):
+                continue
             address = row[2]
             if(address[0] == '台'):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
                 tmp = (str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))            
-                if(len(output)+len(tmp) >= 2500):
-                    print('over 2500!')
-                    break
-                else:
-                    output += tmp
+                output += tmp
+            if(flag - target == 5):
+                ch['start'] = flag
+                break
     return output  
 
 app = Flask(__name__)
@@ -117,9 +123,16 @@ def handle_message(event):
     elif text == "whoami":
         retext = (name)
     elif text[0:4] == 'mask':
-        zipcode = int(text[4:])
-        ret = get_masks(zipcode)
+        ch['check'] = 0
+        ch['zipcode'] = int(text[4:])
+        ret = get_masks(ch['zipcode'])
         retext = ret
+    elif text == '+':
+        if(ch['check']>0 and ch['zipcode'] != -1):
+            ret = get_masks(ch['zipcode'])
+            retext = ret
+        else:
+            retext = '輸入錯誤!\n'
     else:
         retext = (text + "てす\n")
     print('retext size: ' + str(len(retext)))
