@@ -136,6 +136,8 @@ def handle_message(event):
         final_message += i
         del retext[flag]
         flag += 1
+    for i in retext:
+        print('last: ' + i)
     message = TextSendMessage(final_message)
     line_bot_api.reply_message(event.reply_token, message)
 
