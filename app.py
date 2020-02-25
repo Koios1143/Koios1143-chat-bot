@@ -51,7 +51,7 @@ def get_data(url):
 
 # find masks
 def get_masks(zipcode):
-    output = []
+    output = ''
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
         logs_red('zipcode dosen\'t exist')
@@ -75,7 +75,12 @@ def get_masks(zipcode):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
-                output.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))            
+                tmp = (str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))            
+                if(len(output)+len(tmp) >= 2500):
+                    print('over 2500!')
+                    break
+                else:
+                    output += tmp
     return output  
 
 app = Flask(__name__)
@@ -103,46 +108,22 @@ def callback():
 name = "Koios1143"
 
 # 處理訊息
-retext = []
-timer = 0
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    timer += 1
-    #nonlocal retext
     text=event.message.text
+    retext = ''
     if text == "--help":
-        retext = []
-        retext.append("whoami\n\t tell you who am I\n")
+        retext = ("- whoami\n\t tell you who am I\n- mask+[zipcode(3codes)]\n\t tell how many masks in the area\n")
     elif text == "whoami":
-        retext = []
-        retext.append(name)
+        retext = (name)
     elif text[0:4] == 'mask':
-        retext = []
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
-        for i in ret:
-            print('res: ' + i)
-        for i in ret:
-            retext.append(i)
-    elif text == '+':
-        if(len(retext)<=0):
-            retext.append('沒有其他資料囉!\n')
-    elif text == 'test':
-        retext.append(str(timer))
+        retext = ret
     else:
-        retext = []
-        retext.append(str(text + "てす\n"))
-    final_message = ""
-    flag = 0
-    for i in retext:
-        if(flag == 5):
-            break
-        final_message += i
-        del retext[flag]
-        flag += 1
-    for i in retext:
-        print('last: ' + i)
-    message = TextSendMessage(final_message)
+        retext = (text + "てす\n")
+    print('retext size: ' + len(retext))
+    message = TextSendMessage(retext)
     line_bot_api.reply_message(event.reply_token, message)
 
 import os
