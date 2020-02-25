@@ -67,26 +67,26 @@ def get_masks(zipcode):
     logs_green('=== download completed ===')
 
     # load data
-    flag = 0
     data_name = 'maskdata.csv'
     with open(data_name, newline='') as csvfile:
         rows = csv.reader(csvfile)
         flag = 0
         target = ch['start']
         for row in rows:
-            flag += 1
-            if(flag < target):
-                continue
+            
             address = row[2]
             if(address[0] == '台'):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
+                flag += 1
+                if(flag < target):
+                    continue
                 tmp = (str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))            
                 output += tmp
-            if(flag - target == 5):
-                ch['start'] = flag
-                break
+                if(flag - target == 5):
+                    ch['start'] = flag
+                    break
     return output  
 
 app = Flask(__name__)
