@@ -106,6 +106,7 @@ name = "Koios1143"
 retext = []
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    nonlocal retext
     text=event.message.text
     if text == "--help":
         retext = []
@@ -116,7 +117,8 @@ def handle_message(event):
     elif text[0:4] == 'mask':
         zipcode = int(text[4:])
         ret = get_masks(zipcode)
-        retext.append(ret)
+        for i in ret:
+            retext.append(i)
     elif text == '+':
         if(len(retext)<=0):
             retext.append('沒有其他資料囉!\n')
@@ -128,8 +130,9 @@ def handle_message(event):
     for i in retext:
         if(flag == 5):
             break
-        flag += 1
         final_message += i
+        del retext[flag]
+        flag += 1
     message = TextSendMessage(final_message)
     line_bot_api.reply_message(event.reply_token, message)
 
