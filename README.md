@@ -16,6 +16,8 @@
     - `mask+[郵遞區號前三碼]` 回覆此區域口罩剩餘情況
     - `+` 顯示更多的mask查詢結果
 
+**mask data from [健康保險資料開放服務](https://data.nhi.gov.tw/Datasets/DatasetResource.aspx?rId=A21030000I-D50001-001)**
+
 **Author:** Koios1143
 
 **e-mail:** ken1357924681010@gmail.com
