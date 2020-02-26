@@ -48,12 +48,12 @@ def get_data(url):
     r = requests.get(url)
     with open('./maskdata.csv','wb') as f:
         f.write(r.content)
-ch = {}
-ch['start'] = 0
-ch['zipcode'] = -1
+
+ret_table = []
 # find masks
 def get_masks(zipcode):
-    output = ''
+    global ret_table
+    output = []
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
         logs_red('zipcode dosen\'t exist')
@@ -70,24 +70,14 @@ def get_masks(zipcode):
     data_name = 'maskdata.csv'
     with open(data_name, newline='') as csvfile:
         rows = csv.reader(csvfile)
-        flag = 0
-        target = ch['start']
         for row in rows:
-            
             address = row[2]
             if(address[0] == '台'):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
-                flag += 1
-                if(flag < target):
-                    continue
-                tmp = (str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))            
-                output += tmp
-                if(flag - target == 5):
-                    ch['start'] = flag
-                    break
-    return output  
+                ret_table.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))
+    return ret_table  
 
 app = Flask(__name__)
 
@@ -112,27 +102,45 @@ def callback():
     return 'OK'
 # Bot information
 name = "Koios1143"
-
+in_zipcode = -1
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    global ret_table
+    global in_zipcode
     text=event.message.text
     retext = ''
     if text == "--help":
-        retext = ("- whoami\n\t tell you who am I\n- mask+[zipcode(3codes)]\n\t tell how many masks in the area\n")
+        retext = ("- whoami\n\t tell you who am I\n- mask+[zipcode(3codes)]\n\t tell how many masks in the area\n- +\n\t get more data\n")
     elif text == "whoami":
         retext = (name)
     elif text[0:4] == 'mask':
-        ch['check'] = 0
-        ch['zipcode'] = int(text[4:])
-        ret = get_masks(ch['zipcode'])
-        retext = ret
+        ret_table = []
+        in_zipcode = int(text[4:])
+        get_masks(in_zipcode)
+        flag = 0
+        for i in ret_table:
+            if(flag == 10):
+                break
+            retext += i
+            flag += 1
+        for i in range(flag):
+            del ret_table[0]
     elif text == '+':
-        if(ch['check']>0 and ch['zipcode'] != -1):
-            ret = get_masks(ch['zipcode'])
-            retext = ret
+        if(in_zipcode == -1):
+            retext = '請先查詢地區!\n'
+        elif(len(ret_table)<=0):
+            retext = '沒有其他資料囉!\n'
+            in_zipcode = -1
         else:
-            retext = '輸入錯誤!\n'
+            flag = 0
+            for i in ret_table:
+                if(flag == 10):
+                    break
+                retext += i
+                flag += 1
+            for i in range(flag):
+                del ret_table[0]
     else:
         retext = (text + "てす\n")
     print('retext size: ' + str(len(retext)))
