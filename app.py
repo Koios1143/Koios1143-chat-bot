@@ -127,16 +127,14 @@ def handle_message(event):
     text=event.message.text
     retext = ''
     if text == "--help":
-        retext = '''
-        whoami
-            回覆我的名稱
-        mask+郵遞區號前三碼
-            查詢該區域內口罩剩餘數量
-        +
-            回覆口罩查詢更多結果
-        --help
-            回覆可用指令
-        '''
+        retext = '''whoami
+    回覆我的名稱
+mask+郵遞區號前三碼
+    查詢該區域內口罩剩餘數量
++
+    回覆口罩查詢更多結果
+--help
+    回覆可用指令'''
     elif text == "whoami":
         retext = (name)
     elif lower(text[0:4]) == 'mask':
