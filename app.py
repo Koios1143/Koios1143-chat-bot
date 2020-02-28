@@ -131,17 +131,20 @@ def handle_message(event):
     elif lower(text[0:4]) == 'mask':
         #initialize
         ret_table = []
+        store_out = 1
+        store_tot = 0
+        in_zipcode = -1
 
-        if(text[4] == '+' or text[4] == '['):
+        if(ord(text[4]) == ord('+') or ord(text[4]) == ord('[')):
             in_zipcode = int(text[5:8])
-        elif((int)(text[4]) >= 0 and (int)(text[4]) <= 9):
+        elif(ord(text[4]) >= ord('0') and ord(text[4]) <= ord('9')):
             in_zipcode = int(text[4:7])
             get_masks(in_zipcode)
             flag = 0
             if(len(ret_table)>=10):
-                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+10) + ' 筆資料 ; 共 ' + str(store_tot) + ' 筆\n'
+                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+10) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n\n'
             else:
-                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)) + ' 筆資料 ; 共 ' + str(store_tot) + ' 筆\n'
+                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n\n'
             for i in ret_table:
                 if(flag == 10):
                     break
