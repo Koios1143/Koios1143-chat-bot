@@ -49,10 +49,21 @@ def get_data(url):
     with open('./maskdata.csv','wb') as f:
         f.write(r.content)
 
+def lower(s):
+    tmp = ''
+    for i in s:
+        if(i >= 'A' and i <= 'Z'):
+            tmp = tmp + (chr)(i-'A'+'a')
+        else:
+            tmp = tmp + i
+    return tmp
 ret_table = []
+store_tot = 0
+store_out = 1
 # find masks
 def get_masks(zipcode):
     global ret_table
+    global store_tot
     output = []
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
@@ -76,8 +87,9 @@ def get_masks(zipcode):
                 address = '臺' + address[1:]
             region = address[0:5]
             if(area == region):
+                store_tot += 1
                 ret_table.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))
-    return ret_table  
+    return  ret_table
 
 app = Flask(__name__)
 
@@ -108,24 +120,38 @@ in_zipcode = -1
 def handle_message(event):
     global ret_table
     global in_zipcode
+    global store_tot
+    global store_out
     text=event.message.text
     retext = ''
     if text == "--help":
         retext = ("- whoami\n\t tell you who am I\n- mask+[zipcode(3codes)]\n\t tell how many masks in the area\n- +\n\t get more data\n")
     elif text == "whoami":
         retext = (name)
-    elif text[0:4] == 'mask':
+    elif lower(text[0:4]) == 'mask':
+        #initialize
         ret_table = []
-        in_zipcode = int(text[4:])
-        get_masks(in_zipcode)
-        flag = 0
-        for i in ret_table:
-            if(flag == 10):
-                break
-            retext += i
-            flag += 1
-        for i in range(flag):
-            del ret_table[0]
+
+        if(text[4] == '+' or text[4] == '['):
+            in_zipcode = int(text[5:8])
+        elif((int)(text[4]) >= 0 and (int)(text[4]) <= 9):
+            in_zipcode = int(text[4:7])
+            get_masks(in_zipcode)
+            flag = 0
+            if(len(ret_table)>=10):
+                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+10) + ' 筆資料 ; 共 ' + str(store_tot) + ' 筆\n'
+            else:
+                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)) + ' 筆資料 ; 共 ' + str(store_tot) + ' 筆\n'
+            for i in ret_table:
+                if(flag == 10):
+                    break
+                retext += i
+                flag += 1
+            store_out += flag
+            for i in range(flag):
+                del ret_table[0]
+        else:
+            retext = '輸入格式錯誤!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n'
     elif text == '+':
         if(in_zipcode == -1):
             retext = '請先查詢地區!\n'
@@ -133,12 +159,17 @@ def handle_message(event):
             retext = '沒有其他資料囉!\n'
             in_zipcode = -1
         else:
+            if(len(ret_table) >= 10):
+                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+10) + ' 筆資料 ; 共 ' + str(store_tot) + ' 筆\n'
+            else:
+                retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)) + ' 筆資料 ; 共 ' + str(store_tot) + ' 筆\n'
             flag = 0
             for i in ret_table:
                 if(flag == 10):
                     break
                 retext += i
                 flag += 1
+            store_out += flag
             for i in range(flag):
                 del ret_table[0]
     else:
