@@ -40,7 +40,7 @@ def get_data(url):
             logger.info('[get_data] open maskdata.csv -> Success')
             return True
     except:
-        logger.WARNING('[get_data] open maskdata.csv -> Failed')
+        logger.warning('[get_data] open maskdata.csv -> Failed')
 
 def all_num(s):
     for i in s:
@@ -86,7 +86,7 @@ def get_masks(zipcode):
                     store_tot += 1
                     ret_table.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))
     except:
-        logger.WARNING('[get_masks] open maskdata.csv -> Failed')
+        logger.warning('[get_masks] open maskdata.csv -> Failed')
     return  True
 
 # Channel Access Token
@@ -153,7 +153,7 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
             in_zipcode = int(text[4:7])
         else:
             retext = '輸入格式錯誤!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢郵遞區號可使用zipcode指令\n\n若要查詢可用指令請輸入--help'
-            logger.WARNING('[mask] input format ERROR')
+            logger.warning('[mask] input format ERROR')
         if(get_masks(in_zipcode) == True):
             flag = 0
             if(len(ret_table)>=10):
@@ -172,11 +172,11 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
                 del ret_table[0]
         else:
             retext = '請輸入正確的郵遞區號!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢可用指令請輸入--help\n'
-            logger.WARNING('[mask] zipcode ERROR')
+            logger.warning('[mask] zipcode ERROR')
     elif text == '+':
         if(in_zipcode == -1):
             retext = '請先查詢地區!\n\n若要查詢郵遞區號，請使用zipcode指令\n若要查詢可用指令請輸入--help\n'
-            logger.WARNING('[+] no area data')
+            logger.warning('[+] no area data')
         elif(len(ret_table)<=0):
             retext = '沒有其他資料囉!\n'
             in_zipcode = -1
@@ -219,7 +219,7 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
                     logger.info('[zipcode] output ' + (str)(res))
                 except:
                     retext = '輸入錯誤!\n請確認輸入是否完整城市名稱以及區域名稱\n例如查詢台南市永康區:zipcode台南市永康區\n\n若要查詢可用指令請輸入--help\n'
-                    logger.WARNING('[zipcode] input ERROR')
+                    logger.warning('[zipcode] input ERROR')
         except:
             logger.ERROR('[zipcode] open tw-zipcode,json -> ERROR')
     else:
