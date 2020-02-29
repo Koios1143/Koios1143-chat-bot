@@ -37,10 +37,10 @@ def get_data(url):
     try:
         with open('./maskdata.csv','wb') as f:
             f.write(r.content)
-            app.logger.info('[get_data] open maskdata.csv -> Success')
+            logger.info('[get_data] open maskdata.csv -> Success')
             return True
     except:
-        app.logger.WARNING('[get_data] open maskdata.csv -> Failed')
+        logger.WARNING('[get_data] open maskdata.csv -> Failed')
 
 def all_num(s):
     for i in s:
@@ -54,28 +54,28 @@ store_out = 1
 # find masks
 def get_masks(zipcode):
     if(zipcode == -1):
-        app.logger.error('[get_masks] zipcode error')
+        logger.error('[get_masks] zipcode error')
         return False
     global ret_table
     global store_tot
     output = []
     area = zipcode_decoder(zipcode)
     if(area == '-1'):
-        app.logger.error('[get_masks] zipcode doesn\'t exist')
+        logger.error('[get_masks] zipcode doesn\'t exist')
         return False
-    app.logger.info('=== processing ===')
+    logger.info('=== processing ===')
 
     # download file
-    app.logger.info('=== downloading files ===')
+    logger.info('=== downloading files ===')
     url = 'https://data.nhi.gov.tw/resource/mask/maskdata.csv'
     get_data(url)
-    app.logger.info('=== download completed ===')
+    logger.info('=== download completed ===')
 
     # load data
     data_name = 'maskdata.csv'
     try:
         with open(data_name, newline='') as csvfile:
-            app.logger.info('[get_masks] open maskdata.csv -> Success')
+            logger.info('[get_masks] open maskdata.csv -> Success')
             rows = csv.reader(csvfile)
             for row in rows:
                 address = row[2]
@@ -86,7 +86,7 @@ def get_masks(zipcode):
                     store_tot += 1
                     ret_table.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))
     except:
-        app.logger.WARNING('[get_masks] open maskdata.csv -> Failed')
+        logger.WARNING('[get_masks] open maskdata.csv -> Failed')
     return  True
 
 # Channel Access Token
@@ -102,7 +102,7 @@ def callback():
     signature = request.headers['X-Line-Signature']
     # get request body as text
     body = request.get_data(as_text=True)
-    app.logger.info("Request body: " + body)
+    logger.info("Request body: " + body)
     # handle webhook body
     try:
         handler.handle(body, signature)
@@ -122,7 +122,7 @@ def handle_message(event):
     text=event.message.text
     retext = ''
     if text == "--help":
-        app.logger.info('[call] --help')
+        logger.info('[call] --help')
         retext = '''whoami
     回覆我的名稱
 mask+郵遞區號前三碼
@@ -136,10 +136,10 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
 --help
     回覆可用指令'''
     elif text == "whoami":
-        app.logger.info('[call] whoami')
+        logger.info('[call] whoami')
         retext = name
     elif text[0:4].lower() == 'mask':
-        app.logger.info('[call] mask' + text[4:])
+        logger.info('[call] mask' + text[4:])
         #initialize
         ret_table = []
         store_out = 1
@@ -153,15 +153,15 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
             in_zipcode = int(text[4:7])
         else:
             retext = '輸入格式錯誤!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢郵遞區號可使用zipcode指令\n\n若要查詢可用指令請輸入--help'
-            app.logger.WARNING('[mask] input format ERROR')
+            logger.WARNING('[mask] input format ERROR')
         if(get_masks(in_zipcode) == True):
             flag = 0
             if(len(ret_table)>=10):
                 retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+9) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n\n'
-                app.logger.info('[mask] output ' + str(store_out) + '~' + str(store_out + 9))
+                logger.info('[mask] output ' + str(store_out) + '~' + str(store_out + 9))
             else:
                 retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)-1) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n\n'
-                app.logger.info('[mask] output ' + str(store_out) + '~' + str(store_out + len(ret_table)-1))
+                logger.info('[mask] output ' + str(store_out) + '~' + str(store_out + len(ret_table)-1))
             for i in ret_table:
                 if(flag == 10):
                     break
@@ -172,22 +172,22 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
                 del ret_table[0]
         else:
             retext = '請輸入正確的郵遞區號!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢可用指令請輸入--help\n'
-            app.logger.WARNING('[mask] zipcode ERROR')
+            logger.WARNING('[mask] zipcode ERROR')
     elif text == '+':
         if(in_zipcode == -1):
             retext = '請先查詢地區!\n\n若要查詢郵遞區號，請使用zipcode指令\n若要查詢可用指令請輸入--help\n'
-            app.logger.WARNING('[+] no area data')
+            logger.WARNING('[+] no area data')
         elif(len(ret_table)<=0):
             retext = '沒有其他資料囉!\n'
             in_zipcode = -1
-            app.logger.info('[+] no other data')
+            logger.info('[+] no other data')
         else:
             if(len(ret_table) >= 10):
                 retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+9) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n'
-                app.logger.info('[+] output ' + str(store_out) + '~' + str(store_out + 9))
+                logger.info('[+] output ' + str(store_out) + '~' + str(store_out + 9))
             else:
                 retext += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)-1) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n'
-                app.logger.info('[+] output ' + str(store_out) + '~' + str(store_out + len(ret_table)))
+                logger.info('[+] output ' + str(store_out) + '~' + str(store_out + len(ret_table)))
             flag = 0
             for i in ret_table:
                 if(flag == 10):
@@ -201,7 +201,7 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
         text = (str)(text).replace(' ','')
         try:
             with open('tw-zipcode.json','r') as jsonfile:
-                app.logger.info('[zipcode] open tw-zipcode.json -> Success')
+                logger.info('[zipcode] open tw-zipcode.json -> Success')
                 data = json.load(jsonfile)
                 city = ''
                 if(text[7:9] == '南海'):
@@ -216,16 +216,16 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
                 try:
                     res = data[city][region]
                     retext = text[7:] + '的郵遞區號為: ' + (str)(res)
-                    app.logger.info('[zipcode] output ' + (str)(res))
+                    logger.info('[zipcode] output ' + (str)(res))
                 except:
                     retext = '輸入錯誤!\n請確認輸入是否完整城市名稱以及區域名稱\n例如查詢台南市永康區:zipcode台南市永康區\n\n若要查詢可用指令請輸入--help\n'
-                    app.logger.WARNING('[zipcode] input ERROR')
+                    logger.WARNING('[zipcode] input ERROR')
         except:
-            app.logger.ERROR('[zipcode] open tw-zipcode,json -> ERROR')
+            logger.ERROR('[zipcode] open tw-zipcode,json -> ERROR')
     else:
         retext = (text + "です\n")
-        app.logger.info('[other] output ' + text + 'です')
-    app.logger.info('retext size: ' + str(len(retext)))
+        logger.info('[other] output ' + text + 'です')
+    logger.info('retext size: ' + str(len(retext)))
     message = TextSendMessage(retext)
     line_bot_api.reply_message(event.reply_token, message)
 
