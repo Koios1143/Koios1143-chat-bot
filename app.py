@@ -152,7 +152,7 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
         if(len(text)>=7 and all_num(text[4:7]) == True):
             in_zipcode = int(text[4:7])
         else:
-            retext = '輸入格式錯誤!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n'
+            retext = '輸入格式錯誤!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢郵遞區號可使用zipcode指令\n\n若要查詢可用指令請輸入--help'
             app.logger.WARNING('[mask] input format ERROR')
         if(get_masks(in_zipcode) == True):
             flag = 0
@@ -175,7 +175,7 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
             app.logger.WARNING('[mask] zipcode ERROR')
     elif text == '+':
         if(in_zipcode == -1):
-            retext = '請先查詢地區!\n\n若要查詢可用指令請輸入--help\n'
+            retext = '請先查詢地區!\n\n若要查詢郵遞區號，請使用zipcode指令\n若要查詢可用指令請輸入--help\n'
             app.logger.WARNING('[+] no area data')
         elif(len(ret_table)<=0):
             retext = '沒有其他資料囉!\n'

@@ -1,4 +1,4 @@
-# Koios1143 ChatBot (v2.1)
+# Koios1143 ChatBot (v2.2)
 現存於line上的chat bot
 參考教學網站: https://yaoandy107.github.io/line-bot-tutorial/
 
@@ -8,14 +8,11 @@
 ```
 
 ## What's new
-- 口罩查詢系統Bug修正
-- 為避免口罩查詢格式不清楚，無論輸入 mask+ 或 mask[ 裡面加上郵遞區號都可以成功查詢
-- LINE加入好友時會傳送使用教學訊息
-- 修正前一版輸出格式
-- `--help` 輸出內容修正，避免使用難以理解的字詞
-- 口罩查詢改為一次顯示10筆
-- 口罩查詢時若查詢格式錯誤(若有使用mask前綴)會提示輸入錯誤
-- `--help` 加上`mask`查詢格式說明
+- 口罩查詢zipcode錯誤時提供錯誤提示
+- 新增查詢zipcode功能
+- log紀錄方式改為logger
+- 美化輸出格式
+- 多使用try-except避免錯誤
 
 ## Features
 - 鸚鵡式回話
@@ -26,6 +23,7 @@
     - `whoami` 回覆bot名稱
     - `mask+[郵遞區號前三碼]` 回覆此區域口罩剩餘情況，一次輸出10筆資料
     - `+` 顯示更多的mask查詢結果
+    - `zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]` 查詢郵遞區號
 
 **mask data from [健康保險資料開放服務](https://data.nhi.gov.tw/Datasets/DatasetResource.aspx?rId=A21030000I-D50001-001)**
 
@@ -33,5 +31,5 @@
 
 **e-mail:** ken1357924681010@gmail.com
 
-**time:** 2020/2/28
+**time:** 2020/2/29
 
