@@ -1,4 +1,4 @@
-# Koios1143 ChatBot (v2.2)
+# Koios1143 ChatBot (v2.3)
 現存於line上的chat bot
 參考教學網站: https://yaoandy107.github.io/line-bot-tutorial/
 
@@ -8,11 +8,9 @@
 ```
 
 ## What's new
-- 口罩查詢zipcode錯誤時提供錯誤提示
-- 新增查詢zipcode功能
-- log紀錄方式改為logger
-- 美化輸出格式
-- 多使用try-except避免錯誤
+- 使用函式增加程式可讀性
+- 將zipcode封包成json
+- 修復部分輸入錯誤Bug
 
 ## Features
 - 鸚鵡式回話
@@ -31,5 +29,5 @@
 
 **e-mail:** ken1357924681010@gmail.com
 
-**time:** 2020/2/29
+**time:** 2020/3/1
 
