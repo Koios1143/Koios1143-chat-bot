@@ -204,9 +204,9 @@ def call_default(texts):
     return (texts + "です")
 
 # Channel Access Token
-line_bot_api = LineBotApi('LiKGupmq3nVvdSoGpNVAbb8X12UUPFSg73GjqXxTC8ZEWG8hjYztwksOipeqUGZtp0TEj9CPuw0D8oLhWL/5gOOWpuXOP78/xBM5sc/H7bgFIOLx/qRtRFmhIVHTlNMgfulzalEIfI9coT+SOZ8btgdB04t89/1O/w1cDnyilFU=')
+line_bot_api = LineBotApi('hu0lbMP6jvn1xFM+ibTdrXGYQ25reDYjmUQYnNJDjpgWJn7n/xKVPQxnbIFWbpBlVCYj+pxvh8mXoyjtq3cbpQy3Kqz2Djmb4qv6BlUH3Flh0aGt4k6RYnMF8tD+Gcz1ndD+3mpccLFKr4YJNpHaygdB04t89/1O/w1cDnyilFU=')
 # Channel Secret
-handler = WebhookHandler('59e24b36750536ac4597288b40181658')
+handler = WebhookHandler('f06829dd46601f40fafec5a96448bec9')
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
