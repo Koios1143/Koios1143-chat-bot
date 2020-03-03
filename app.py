@@ -9,11 +9,15 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
+from logger import logger
+
 import csv
 import json
 import time
 import requests
-from logger import logger
+import get_data
+
+import get_distance
 
 app = Flask(__name__)
 
@@ -21,7 +25,7 @@ app = Flask(__name__)
 def zipcode_decoder(code):
     area = ' '
     try:
-        with open('tw-zipcode_de.json','r')as jsonfiles:
+        with open('./data/tw-zipcode_de.json','r')as jsonfiles:
             data = json.load(jsonfiles)
             logger.info('open tw-zipcode_de.json -> Success')
             try:
@@ -34,16 +38,6 @@ def zipcode_decoder(code):
         logger.error('[zipcode_decoder] open tw-zipcode_de.json -> Failes')
 def get_nowtime():
     return str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-
-def get_data(url):
-    r = requests.get(url)
-    try:
-        with open('./maskdata.csv','wb') as f:
-            f.write(r.content)
-            logger.info('[get_data] open maskdata.csv -> Success')
-            return True
-    except:
-        logger.error('[get_data] open maskdata.csv -> Failed')
 
 def all_num(s):
     for i in s:
@@ -65,16 +59,11 @@ def get_masks(area):
     if(area == '-1'):
         logger.error('[get_masks] zipcode doesn\'t exist')
         return False
-    logger.info('=== processing ===')
-
-    # download file
-    logger.info('=== downloading files ===')
-    url = 'https://data.nhi.gov.tw/resource/mask/maskdata.csv'
-    get_data(url)
-    logger.info('=== download completed ===')
+    
+    get_data.get_maskdata()
 
     # load data
-    data_name = 'maskdata.csv'
+    data_name = './data/maskdata.csv'
     try:
         with open(data_name, newline='') as csvfile:
             logger.info('[get_masks] open maskdata.csv -> Success')
@@ -151,7 +140,7 @@ def call_mask(texts):
         return s
     else:
         logger.warning('[mask] zipcode ERROR')
-        return '請輸入正確的郵遞區號!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢可用指令請輸入--help\n'
+        return '請輸入正確的郵遞區號!\n查詢格式為:mask+郵遞區號前三碼\n例如查詢永康區輸入:mask710\n\n若要查詢可用指令請輸入--help'
     
 def call_plus():
     global in_zipcode
@@ -160,18 +149,18 @@ def call_plus():
     global store_tot
     if(in_zipcode == -1):
         logger.warning('[+] no area data')
-        return '請先查詢地區!\n\n若要查詢郵遞區號，請使用zipcode指令\n若要查詢可用指令請輸入--help\n'
+        return '請先查詢地區!\n\n若要查詢郵遞區號，請使用zipcode指令\n若要查詢可用指令請輸入--help'
     elif(len(ret_table)<=0):
         in_zipcode = -1
         logger.info('[+] no other data')
-        return '沒有其他資料囉!\n'
+        return '沒有其他資料囉!'
     else:
         s = ''
         if(len(ret_table) >= 10):
-            s += '目前輸出第 ' + str(store_out) + '~' + str(store_out+9) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n'
+            s += '目前輸出第 ' + str(store_out) + '~' + str(store_out+9) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n\n'
             logger.info('[+] output ' + str(store_out) + '~' + str(store_out + 9))
         else:
-            s += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)-1) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n'
+            s += '目前輸出第 ' + str(store_out) + '~' + str(store_out+len(ret_table)-1) + ' 筆資料 , 全部共 ' + str(store_tot) + ' 筆\n\n'
             logger.info('[+] output ' + str(store_out) + '~' + str(store_out + len(ret_table)-1))
         flag = 0
         for i in ret_table:
@@ -186,7 +175,7 @@ def call_plus():
 def call_zipcode(texts):
     texts = (str)(texts).replace(' ','')
     try:
-        with open('tw-zipcode.json','r') as jsonfile:
+        with open('./data/tw-zipcode.json','r') as jsonfile:
             logger.info('[zipcode] open tw-zipcode.json -> Success')
             data = json.load(jsonfile)
             if(texts[7:9] == '南海'):
@@ -205,19 +194,19 @@ def call_zipcode(texts):
                 return (texts[7:] + '的郵遞區號為: ' + (str)(res))
             except:
                 logger.warning('[zipcode] input ERROR')
-                return '輸入錯誤!\n請確認輸入是否完整城市名稱以及區域名稱\n例如查詢台南市永康區:zipcode台南市永康區\n\n若要查詢可用指令請輸入--help\n'
+                return '輸入錯誤!\n請確認輸入是否完整城市名稱以及區域名稱\n例如查詢台南市永康區:zipcode台南市永康區\n\n若要查詢可用指令請輸入--help'
     except:
         logger.error('[zipcode] open tw-zipcode.json -> ERROR')
         return '[call_zipcode] tw-zipcode.json 檔案開啟失敗'
 
 def call_default(texts):
     logger.info('[other] output ' + texts + 'です')
-    return (texts + "です\n")
+    return (texts + "です")
 
 # Channel Access Token
-line_bot_api = LineBotApi('hu0lbMP6jvn1xFM+ibTdrXGYQ25reDYjmUQYnNJDjpgWJn7n/xKVPQxnbIFWbpBlVCYj+pxvh8mXoyjtq3cbpQy3Kqz2Djmb4qv6BlUH3Flh0aGt4k6RYnMF8tD+Gcz1ndD+3mpccLFKr4YJNpHaygdB04t89/1O/w1cDnyilFU=')
+line_bot_api = LineBotApi('LiKGupmq3nVvdSoGpNVAbb8X12UUPFSg73GjqXxTC8ZEWG8hjYztwksOipeqUGZtp0TEj9CPuw0D8oLhWL/5gOOWpuXOP78/xBM5sc/H7bgFIOLx/qRtRFmhIVHTlNMgfulzalEIfI9coT+SOZ8btgdB04t89/1O/w1cDnyilFU=')
 # Channel Secret
-handler = WebhookHandler('f06829dd46601f40fafec5a96448bec9')
+handler = WebhookHandler('59e24b36750536ac4597288b40181658')
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
