@@ -1,4 +1,4 @@
-# Koios1143 ChatBot (v2.3)
+# Koios1143 ChatBot (v2.4)
 現存於line上的chat bot
 參考教學網站: https://yaoandy107.github.io/line-bot-tutorial/
 
