@@ -138,7 +138,10 @@ zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]
     回覆該區域的郵遞區號(三碼)
     例如要查詢台南市永康區:zipcode台南市永康區
 --help
-    回覆可用指令'''
+    回覆可用指令
+
+點擊左下角+，選擇位置資訊 傳送當前位置即可查詢半徑1KM內的口罩資料!'''
+
     return s
 
 def call_whoami():
@@ -256,7 +259,9 @@ def loc_mask(event):
     r = 1 #km
     tot = 0
     ret = ''
+    logger.info('get user position => Success')
     with open('data/maskdata_pos.csv', 'r') as f:
+        logger.info('[loc_mask] open maskdata_pos.csv -> Success')
         data = csv.reader(f)
         YN = False
         for i in data:
@@ -277,7 +282,7 @@ def loc_mask(event):
                 ret = ret + name + '\n' + location + '\n' + tel + '\n' + man_mask + '\n' + ch_mask + '\n' + time
                 tot += 1
     ret = '共找到 ' + str(tot) + '筆資料\n' + ret
-    logger.info('共找到 ' + str(tot) + '筆資料')
+    logger.info('[loc_mask] found ' + str(tot) + ' datas')
     return ret
 
 # Channel Access Token
