@@ -10,8 +10,12 @@
 ## What's new
 - 改善輸出格式
 - 改善檔案位置及格式
-- 新增訊息模板
-- 準備進行大改版，預計下個版本會使用定位系統查詢附近藥局
+- 傳送位置資訊即可取得半徑1km內的口罩資訊
+- 將access token、secret存放於config.yml
+- 新增.gitignore
+- 修正maskdata_GPS錯誤內容
+- 新增pos_out.json存取店家座標
+- 若查詢時間與資料時間差距30min以上會更新資料
 
 ## Features
 - 鸚鵡式回話
@@ -23,6 +27,8 @@
     - `mask+[郵遞區號前三碼]` 回覆此區域口罩剩餘情況，一次輸出10筆資料
     - `+` 顯示更多的mask查詢結果
     - `zipcode+[城市(縣/市)][區域(鄉/鎮/市/區)]` 查詢郵遞區號
+- 其他操作
+    - 傳送位置資訊 回復所在區域半徑1KM內的口罩資訊
 
 **mask data from [健康保險資料開放服務](https://data.nhi.gov.tw/Datasets/DatasetResource.aspx?rId=A21030000I-D50001-001)**
 
@@ -30,5 +36,5 @@
 
 **e-mail:** ken1357924681010@gmail.com
 
-**time:** 2020/3/3
+**time:** 2020/3/7
 

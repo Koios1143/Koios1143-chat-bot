@@ -9,6 +9,10 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
+import sys
+sys.path.append('subroutine/')
+print(sys.path)
+
 from logger import logger
 
 import csv
@@ -16,10 +20,18 @@ import json
 import time
 import requests
 import get_data
-
+import yaml
 import get_distance
+import add_pos
+import datetime
 
 app = Flask(__name__)
+
+# get line token
+config = open('config.yml', 'r', newline='')
+cfg = yaml.load(config)
+LINE_ACCESS_TOKEN = cfg['LINE']['ACCESS_TOKEN']
+LINE_SECRET = cfg['LINE']['SECRET']
 
 # change zipcode to area
 def zipcode_decoder(code):
@@ -36,14 +48,41 @@ def zipcode_decoder(code):
             return area
     except:
         logger.error('[zipcode_decoder] open tw-zipcode_de.json -> Failes')
+
+# get now time
 def get_nowtime():
     return str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
+# check if all numbers
 def all_num(s):
     for i in s:
         if(not(ord(i) >= ord('0') and ord(i) <= ord('9'))):
             return False
     return True
+
+# check if need update
+def update():
+    now = datetime.datetime.now()
+    s = ''
+    with open('data/maskdata.csv','r',newline='') as f:
+        data = csv.reader(f)
+        flag = 0
+        for i in data:
+            if(flag == 1):
+                s = i[6]
+                break
+            else:
+                flag += 1
+    s.replace('\n','')
+    print(s)
+    past = datetime.datetime.strptime(s, '%Y/%m/%d %H:%M:%S')
+    minutes = datetime.timedelta(minutes=30)
+    if(now-past>=minutes):
+        get_data.get_maskdata()
+        add_pos.add_pos()
+        return True
+    else:
+        return False
 
 ret_table = []
 store_tot = 0
@@ -59,11 +98,10 @@ def get_masks(area):
     if(area == '-1'):
         logger.error('[get_masks] zipcode doesn\'t exist')
         return False
-    
-    get_data.get_maskdata()
 
     # load data
     data_name = './data/maskdata.csv'
+    YN = False
     try:
         with open(data_name, newline='') as csvfile:
             logger.info('[get_masks] open maskdata.csv -> Success')
@@ -75,11 +113,18 @@ def get_masks(area):
                 region = address[0:5]
                 if(area == region):
                     store_tot += 1
-                    ret_table.append(str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6] + '\n\n'))
+                    s = ''
+                    if(YN == True):
+                        s = '\n\n'
+                    else:
+                        YN = True
+                    s = s + str('名稱: ' + row[1] + '\n地址: ' + row[2] + '\n成人口罩剩餘數: ' + row[4] + '\n兒童口罩剩餘數: ' + row[5] + '\n來源資料時間: ' + row[6])
+                    ret_table.append(s)
     except:
         logger.warning('[get_masks] open maskdata.csv -> Failed')
     return  True
 
+# ------------------- type: text request -------------------
 def call_help():
     logger.info('[call] --help')
     s = '''whoami
@@ -172,6 +217,7 @@ def call_plus():
         for i in range(flag):
             del ret_table[0]
         return s
+
 def call_zipcode(texts):
     texts = (str)(texts).replace(' ','')
     try:
@@ -203,10 +249,41 @@ def call_default(texts):
     logger.info('[other] output ' + texts + 'です')
     return (texts + "です")
 
+# ------------------- type: location request ----------------------
+def loc_mask(event):
+    lat1 = float(event.message.latitude)
+    lng1 = float(event.message.longitude)
+    r = 1 #km
+    tot = 0
+    ret = ''
+    with open('data/maskdata_pos.csv', 'r') as f:
+        data = csv.reader(f)
+        YN = False
+        for i in data:
+            lat2 = float(i[7])
+            lng2 = float(i[8])
+            if(get_distance.distance(lat1,lng1,lat2,lng2) <= r):
+                s = ''
+                if(YN==True):
+                    ret = ret + '\n\n'
+                else:
+                    YN=True
+                name = '名稱: ' + str(i[1])
+                location = '地址: ' + str(i[2])
+                tel = '電話: ' + str(i[3])
+                man_mask = '成人口罩: ' + str(i[4])
+                ch_mask = '兒童口罩: ' + str(i[5])
+                time = '最後更新時間: ' + str(i[6])
+                ret = ret + name + '\n' + location + '\n' + tel + '\n' + man_mask + '\n' + ch_mask + '\n' + time
+                tot += 1
+    ret = '共找到 ' + str(tot) + '筆資料\n' + ret
+    logger.info('共找到 ' + str(tot) + '筆資料')
+    return ret
+
 # Channel Access Token
-line_bot_api = LineBotApi('hu0lbMP6jvn1xFM+ibTdrXGYQ25reDYjmUQYnNJDjpgWJn7n/xKVPQxnbIFWbpBlVCYj+pxvh8mXoyjtq3cbpQy3Kqz2Djmb4qv6BlUH3Flh0aGt4k6RYnMF8tD+Gcz1ndD+3mpccLFKr4YJNpHaygdB04t89/1O/w1cDnyilFU=')
+line_bot_api = LineBotApi(LINE_ACCESS_TOKEN)
 # Channel Secret
-handler = WebhookHandler('f06829dd46601f40fafec5a96448bec9')
+handler = WebhookHandler(LINE_SECRET)
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -222,33 +299,53 @@ def callback():
     except InvalidSignatureError:
         abort(400)
     return 'OK'
-# Bot information
+    
 in_zipcode = -1
 # 處理訊息
-@handler.add(MessageEvent, message=TextMessage)
+@handler.add(MessageEvent)
 def handle_message(event):
     global ret_table
     global in_zipcode
     global store_tot
     global store_out
-    text=event.message.text
-    retext = ''
-    if text == "--help":
-        retext = call_help()
-    elif text == "whoami":
-        retext = call_whoami()
-    elif text[0:4].lower() == 'mask':
-        retext = call_mask(text)
-    elif text == '+':
-        retext = call_plus()
-    elif(text[0:7].lower() == 'zipcode'):
-        retext = call_zipcode(text)
-    else:
-        retext = call_default(text)
-    
-    logger.info('retext size: ' + str(len(retext)))
-    message = TextSendMessage(retext)
-    line_bot_api.reply_message(event.reply_token, message)
+    ret_type = event.message.type
+    logger.info('User: ' + str(event.source.user_id))
+    logger.info('message type: ' + str(event.message.type))
+    logger.info('source type: ' + str(event.source.type))
+    if(ret_type == 'text'):
+        text=event.message.text
+        retext = ''
+        if text == "--help":
+            retext = call_help()
+        elif text == "whoami":
+            retext = call_whoami()
+        elif text[0:4].lower() == 'mask':
+            update()
+            retext = call_mask(text)
+        elif text == '+':
+            retext = call_plus()
+        elif(text[0:7].lower() == 'zipcode'):
+            retext = call_zipcode(text)
+        else:
+            retext = call_default(text)
+        logger.info('retext size: ' + str(len(retext)))
+        message = TextSendMessage(retext)
+        line_bot_api.reply_message(event.reply_token, message)
+    elif(ret_type == 'location'):
+        update()
+        retext = loc_mask(event)
+        message = TextSendMessage(retext)
+        line_bot_api.reply_message(event.reply_token, message)
+    elif(ret_type == 'image'):
+        pass
+    elif(ret_type == 'video'):
+        pass
+    elif(ret_type == 'audio'):
+        pass
+    elif(ret_type == 'file'):
+        pass
+    elif(ret_type == 'sticker'):
+        pass
 
 import os
 if __name__ == "__main__":
