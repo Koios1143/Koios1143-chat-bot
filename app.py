@@ -77,6 +77,8 @@ def update():
     print(s)
     past = datetime.datetime.strptime(s, '%Y/%m/%d %H:%M:%S')
     minutes = datetime.timedelta(minutes=30)
+    print('now: ' + str(now))
+    print('past: ' + str(past))
     if(now-past>=minutes):
         get_data.get_maskdata()
         add_pos.add_pos()
