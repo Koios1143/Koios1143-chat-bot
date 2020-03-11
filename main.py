@@ -50,8 +50,8 @@ def handle_message(event):
 
         alt_text = ""
         for data in result:
-            alt_text += '{}:\n 成人口罩剩餘: {} 兒童口罩剩餘: {}\n\n'.format(data[1],data[4],data[5])
-
+            alt_text += '{}:\n 成人口罩剩餘: {} 兒童口罩剩餘: {}\n電話: {}\n\n'.format(data[1],data[4],data[5],data[3])
+        alt_text += '最後更新時間: ' + str(data[6])
         line_bot_api.reply_message(reply_token, TemplateSendMessage(
             alt_text = alt_text,
             template = CarouselTemplate(
@@ -59,7 +59,7 @@ def handle_message(event):
                     CarouselColumn(
                         thumbnail_image_url = 'https://freesvg.org/img/1509483582.png',
                         title = data[1],
-                        text = '成人口罩剩餘: {}\n兒童口罩剩餘: {}\n'.format(data[4],data[5]),
+                        text = '成人口罩剩餘: {}\n兒童口罩剩餘: {}\n電話: {}\n'.format(data[4],data[5],data[3]),
                         actions = [
                             PostbackAction(
                                 label = 'get map',
@@ -75,13 +75,13 @@ def handle_message(event):
         user_text = event.message.text
         logger.info('user_text: ' + user_text)
         # help
-        if(user_text == 'help'):
+        if(user_text.strip() == 'help'):
             line_bot_api.reply_message(reply_token, ImageSendMessage(
             original_content_url='https://i.imgur.com/ZPXpDvg.jpg',
             preview_image_url='https://i.imgur.com/ZPXpDvg.jpg'
             ))
         else:
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = '早安'))
+            line_bot_api.reply_message(reply_token, TextSendMessage(text = '早安^^'))
 
 @handler.add(PostbackEvent)
 def handle_postback(event):

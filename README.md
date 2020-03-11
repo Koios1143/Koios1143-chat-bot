@@ -11,11 +11,13 @@ recreate Koios1143 chat bot version 2.x -> 3.0
 - send location info to get mask data in 1KM
 - send `help` to get tutorial
 - use functioncal programming
+- add phone information
+- add last update time(PC version)
 
 ## Features
 - 傳送 `位置資訊` 給Bot後，回傳距離當地半徑1KM內的店家口罩剩餘數量前10名表格。點擊表格內的 get map 可以獲取藥局地圖。
 - 傳送 `help` 會回傳使用教學圖檔
-- 鸚鵡式回話
+**data update per 5 minutes**
 
 **mask data from [健康保險資料開放服務](https://data.nhi.gov.tw/Datasets/DatasetResource.aspx?rId=A21030000I-D50001-001)**
 
