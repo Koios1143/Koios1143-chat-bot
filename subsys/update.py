@@ -13,7 +13,7 @@ def update():
         url = 'https://data.nhi.gov.tw/resource/mask/maskdata.csv'
         request_data = requests.get(url)
         try:
-            maskdata = open(data_folder + 'csv/maskdata.csv','wb')
+            maskdata = open(data_folder + 'csv/maskdata.csv','w')
             logger.info('open maskdata.csv => Success')
             maskdata.write(request_data.content)
             logger.info('========== Download Success ==========')
