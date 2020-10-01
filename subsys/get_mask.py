@@ -16,8 +16,11 @@ def get_mask(event):
         lat1 = float(event.message.latitude)
         lng1 = float(event.message.longitude)
         for data in mask_data:
-            lat2 = float(data[7])
-            lng2 = float(data[8])
+            try:
+                lat2 = float(data[7])
+                lng2 = float(data[8])
+            except:
+                continue
             if(distance(lat1, lng1, lat2, lng2) <= radius):
                 result.append(data)
         result = sorted(result, key=lambda x:(int(x[4]) + int(x[5]))*-1)

@@ -47,46 +47,53 @@ def handle_message(event):
     if(message_type == 'location'):
         update()
         result = get_mask(event)
-
-        alt_text = ""
-        for data in result:
-            alt_text += '{}:\n 成人口罩剩餘: {} 兒童口罩剩餘: {}\n電話: {}\n\n'.format(data[1],data[4],data[5],data[3])
-        alt_text += '最後更新時間: ' + str(data[6])
-        line_bot_api.reply_message(reply_token, TemplateSendMessage(
-            alt_text = alt_text,
-            template = CarouselTemplate(
-                columns = [
-                    CarouselColumn(
-                        thumbnail_image_url = 'https://freesvg.org/img/1509483582.png',
-                        title = data[1],
-                        text = '成人口罩剩餘: {}\n兒童口罩剩餘: {}\n電話: {}\n'.format(data[4],data[5],data[3]),
-                        actions = [
-                            PostbackAction(
-                                label = 'get map',
-                                display_text = data[1],
-                                data = 'px: ' + data[0]
-                            )
-                        ]
-                    )for data in result
-                ]
-            )
-        ))
+        Card = json.load(open(data_folder + 'json/Card.json','r',encoding='utf-8'))
+        for i in range(len(result)):
+            bubble = json.load(open(data_folder + 'json/Bubble.json','r',encoding='utf-8'))
+            # 醫事機構代碼
+            Code = result[i][0]
+            # 藥局名稱
+            Name = result[i][1]
+            # 地址
+            Address = result[i][2]
+            # 電話
+            Phone = result[i][3]
+            # 成人口罩剩餘
+            AdultRemain = result[i][4]
+            # 兒童口罩剩餘
+            KidRemain = result[i][5]
+            # 最後更新時間
+            LastUpdate = result[i][6]
+            # 緯度
+            Latitude = result[i][7]
+            # 經度
+            Longitude = result[i][8]
+           
+            # 標題
+            bubble['body']['contents'][0]['text'] = Name
+            # 電話
+            bubble['body']['contents'][1]['contents'][1]['text'] = Phone
+            # 地址
+            bubble['body']['contents'][2]['contents'][1]['text'] = Address
+            # 成人口罩剩餘
+            bubble['body']['contents'][3]['contents'][1]['text'] = AdultRemain
+            # 兒童口罩剩餘
+            bubble['body']['contents'][4]['contents'][1]['text'] = KidRemain
+            # 最後更新時間
+            bubble['body']['contents'][5]['contents'][1]['text'] = LastUpdate[5:-3]
+            # PostBack Action
+            bubble['footer']['contents'][0]['action']['data'] = 'GetMap {}'.format(Code)
+            Card['contents'].append(bubble)
+        line_bot_api.reply_message(reply_token, FlexSendMessage('查詢結果出爐~',Card))
     elif(message_type == 'text'):
         user_text = event.message.text
         logger.info('user_text: ' + user_text)
-        # help
-        if(user_text.strip() == 'help'):
-            line_bot_api.reply_message(reply_token, ImageSendMessage(
-            original_content_url='https://i.imgur.com/ZPXpDvg.jpg',
-            preview_image_url='https://i.imgur.com/ZPXpDvg.jpg'
-            ))
-        else:
-            line_bot_api.reply_message(reply_token, TextSendMessage(text = '早安^^'))
+        line_bot_api.reply_message(reply_token, TextSendMessage(text = '早安^^'))
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    if(event.postback.data.startswith('px: ')):
-        px = event.postback.data[4:]
+    if(event.postback.data.startswith('GetMap')):
+        px = event.postback.data[7:]
         positions = json.load(open(data_folder + 'json/positions.json','r'))
         name = positions[px]['name']
         lat = positions[px]['lat']
